@@ -217,7 +217,7 @@ const syncUpAttachment = async (cardId) => {
     }
 
     if (cardIds.length != 1) {
-      throw new Error("trello-card-check:can not have mulitple trello cards on one pull request.");
+      throw new Error("trello-card-check: cannot have multiple trello cards on one pull request.");
     }
     const cardId = cardIds[0];
     core.info(`trello-card-check:cardId = ${cardId}, passed`);
