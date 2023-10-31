@@ -174,22 +174,22 @@ const syncUpAttachment = async (cardId) => {
   //make sure not already attached
   if (extantAttachments == null || !extantAttachments.some(it => it.url === evthookPayload.pull_request.html_url)) {
     const createdAttachment = await createCardAttachment(cardId, evthookPayload.pull_request.html_url);
-    core.info(`synup-attachment:created trello attachment for card ${cardId}.`);
+    core.info(`syncup-attachment:created trello attachment for card ${cardId}.`);
     core.debug(util.inspect(createdAttachment));
 
     // BRH NOTE actually, the power-up doesn't check if it previously added comment, so this doesn't exactly match
     //  its fxnality.
     if (shouldAddPrComment && !await commentsContainsTrelloLink(cardId)) {
-      core.debug(`synup-attachment:adding pr comment for card ${cardId}.`);
+      core.debug(`syncup-attachment:adding pr comment for card ${cardId}.`);
       const newComment = await buildTrelloLinkComment(cardId)
 
       //comments as 'github actions' bot, at least when using token automatically generated for GH workflows
       await addPrComment(newComment);
     } else {
-      core.info(`synup-attachment:pr comment already present or unwanted for card ${cardId} - skipped adding comment .`);
+      core.info(`syncup-attachment:pr comment already present or unwanted for card ${cardId} - skipped adding comment .`);
     }
   } else {
-    core.info(`synup-attachment:trello attachment for card ${cardId} already exists - skipped creating attachment .`);
+    core.info(`syncup-attachment:trello attachment for card ${cardId} already exists - skipped creating attachment .`);
   }
 }
 
