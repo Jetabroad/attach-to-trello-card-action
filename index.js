@@ -242,7 +242,7 @@ const syncUpAttachment = async (cardId) => {
       var cardObject = await getCard(cardId);
       var matches = verificationTexReg.exec(cardObject.desc.toLowerCase());
       if (!matches) {
-        throw Error("verification-step-check:there is no verification steps on card yet , please just put \"Verification Steps\" as text or remove [ready for review] label to skip this error")
+        throw Error("verification-step-check: there are no verification steps on the card yet, please put \"Verification Steps\" as text or remove the [ready for review] label to skip this error.")
       }
       core.info("verification-step-check:passed");
     }
