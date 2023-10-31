@@ -213,7 +213,7 @@ const syncUpAttachment = async (cardId) => {
     const cardIds = extractTrelloCardIds(evthookPayload.pull_request.body);
 
     if (!cardIds || cardIds.length == 0) {
-      throw new Error("trello-card-check:no card urls in pr comment,please attach your card to this pull request.")
+      throw new Error("trello-card-check: no card urls in pr comment, please attach your card to this pull request.")
     }
 
     if (cardIds.length != 1) {
