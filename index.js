@@ -32,7 +32,7 @@ const requestTrello = async (verb, url, body = null, extraParams = null) => {
     const res = await trelloClient.request({
       method: verb,
       url: url,
-      data: body || {},
+      data: body,
       params: params
     });
     core.debug(`${verb} to ${url} completed with status: ${res.status}.  data follows:`);
@@ -148,19 +148,19 @@ const buildTrelloLinkComment = async (cardId) => {
   return `![](https://github.trello.services/images/mini-trello-icon.png) [${cardInfo.name}](${cardInfo.url})`;
 };
 
-const syncUpLabel = async (cardId, pullrequestHasReviewLabel) => {
+const syncUpLabel = async (cardId, pullRequestHasReviewLabel) => {
 
   let trellolabels = await getTrelloCardLabels(cardId);
-  core.info("syncup-label:Trell card's labels ="+JSON.stringify(trellolabels));
+  core.info("syncup-label:Trello Card's labels: " + JSON.stringify(trellolabels));
   var cardHasReviewLabel = trellolabels.some(lb => lb == trelloReviewLabelId);
 
-  if (pullrequestHasReviewLabel && !cardHasReviewLabel) {
+  if (pullRequestHasReviewLabel && !cardHasReviewLabel) {
 
     await addTrelloCardLabel(cardId, trelloReviewLabelId);
     core.info(`syncup-label:add label [Ready for Team Review] to trello card`);
   }
 
-  if (!pullrequestHasReviewLabel && cardHasReviewLabel) {
+  if (!pullRequestHasReviewLabel && cardHasReviewLabel) {
     await removeTrelloCardLabel(cardId, trelloReviewLabelId);
     core.info(`syncup-label:remove label [Ready for Team Review] from trello card`);
   }
@@ -197,8 +197,6 @@ const syncUpAttachment = async (cardId) => {
 (async () => {
   try {
 
- 
-
     // 1. Check Github action event
     if (!(github.context.eventName === supportedEvent && supportedActions.some(el => el === evthookPayload.action))) {
       core.info(`event-check:event/type not supported: ${github.context.eventName.eventName}.${evthookPayload.action}.  skipping action.`);
@@ -230,17 +228,16 @@ const syncUpAttachment = async (cardId) => {
     const labels = labelObjects.map(function (object) {
       return object['name'];
     });
-    core.info("syncup-label:Pull reqeust's labels:" + JSON.stringify(labels));
-    const pullrequestHasReviewLabel = labels.some(label => label == "ready for review");
-    await syncUpLabel(cardId, pullrequestHasReviewLabel);
+    core.info("syncup-label:Pull Request's labels: " + JSON.stringify(labels));
+    const pullRequestHasReviewLabel = labels.some(label => label == "ready for review");
+    await syncUpLabel(cardId, pullRequestHasReviewLabel);
     core.info("syncup-label:passed");
 
-
     // 5. if pull request has [ready for review] label , continue to check if card has verification step provided
-    if (pullrequestHasReviewLabel) {
-      var verificationTexReg = /verification.*step/;
-      var cardObject = await getCard(cardId);
-      var matches = verificationTexReg.exec(cardObject.desc.toLowerCase());
+    if (pullRequestHasReviewLabel) {
+      const verificationTexReg = /(verification|validation).*step/;
+      const cardObject = await getCard(cardId);
+      const matches = verificationTexReg.exec(cardObject.desc.toLowerCase());
       if (!matches) {
         throw Error("verification-step-check: there are no verification steps on the card yet, please put \"Verification Steps\" as text or remove the [ready for review] label to skip this error.")
       }
@@ -251,6 +248,5 @@ const syncUpAttachment = async (cardId) => {
     core.error(util.inspect(error));
     //failure will stop PR from being mergeable if that setting enabled on the repo.  there is not currently a neutral exit in actions v2.
     core.setFailed(error.message);
-
   }
 })();
